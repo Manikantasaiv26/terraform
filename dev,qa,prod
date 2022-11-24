@@ -1,0 +1,99 @@
+provider:
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region  = "us-east-1"
+  profile = "mani"
+}
+
+
+
+
+varible.tf:
+module "dev-vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+
+  name = "my-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a"]
+  private_subnets = ["10.0.1.0/24"]
+  public_subnets  = ["10.0.101.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
+
+  tags = {
+    name        = "dev-vpc-01"
+    Terraform   = "true"
+    Environment = "dev"
+  }
+}
+
+module "qa-vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+
+  name = "my-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["us-east-1a"]
+  private_subnets = ["10.0.1.0/24"]
+  public_subnets  = ["10.0.101.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
+
+  tags = {
+    name        = "qa-vpc-01"
+    Terraform   = "true"
+    Environment = "qa"
+  }
+}
+
+
+resource "aws_vpc" "dev" {
+  cidr_block       = "10.1.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    name = "dev-vpc-01"
+  }
+}
+
+resource "aws_vpc" "qa" {
+  cidr_block       = "10.2.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    name = "qa-vpc-01"
+  }
+}
+
+resource "aws_vpc" "prod" {
+  cidr_block       = "10.3.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    name = "prod-vpc-01"
+  }
+}
+
+
+
+
+terraform.tfvars:
+vpc_cidr = {
+  dev  = "10.1.0.0/16"
+  qa   = "10.2.0.0/16"
+  prod = "10.3.0.0/16"
+}
